@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحطة الطرفية | نظام أبو جمال</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="terminal-bg">
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <h1>🖥️ المحطة الطرفية</h1>
+            <div class="terminal-status">متصل</div>
+        </div>
+        
+        <div class="terminal-output" id="output">
+            <div class="output-line">abu-jamal-os v2.0 - Terminal Interface</div>
+            <div class="output-line">Type 'help' for available commands</div>
+            <div class="output-line">></div>
+        </div>
+        
+        <div class="terminal-input">
+            <span class="prompt">abu-jamal-os:~$ </span>
+            <input type="text" id="command-input" autofocus>
+        </div>
+    </div>
+    
+    <script>
+        const input = document.getElementById('command-input');
+        const output = document.getElementById('output');
+        
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const command = input.value.trim();
+                input.value = '';
+                
+                output.innerHTML += `<div class="output-line">> ${command}</div>`;
+                
+                // محاكاة الاستجابة
+                let response = '';
+                if (command === 'help') {
+                    response = 'Available commands: scan, analyze, status, clear';
+                } else if (command.startsWith('scan')) {
+                    response = 'Scanning target... Target identified: ALJANOOB368';
+                } else {
+                    response = `Command not found: ${command}`;
+                }
+                
+                output.innerHTML += `<div class="output-line">${response}</div>`;
+                output.scrollTop = output.scrollHeight;
+            }
+        });
+    </script>
+    
+    <style>
+        .terminal-bg {
+            background: black;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .terminal-container {
+            padding: 1rem;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .terminal-output {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #0f0;
+            margin: 1rem 0;
+        }
+        .output-line {
+            margin-bottom: 0.25rem;
+        }
+        .terminal-input {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #0f0;
+        }
+        .prompt {
+            color: #0f0;
+            margin-right: 0.5rem;
+        }
+        #command-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            outline: none;
+        }
+    </style>
+</body>
+</html>

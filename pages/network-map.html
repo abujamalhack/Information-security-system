@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الخريطة الشبكية | نظام أبو جمال</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+</head>
+<body class="matrix-bg">
+    <div id="matrix-canvas"></div>
+    
+    <nav class="network-nav">
+        <div class="nav-back" onclick="window.history.back()">
+            ← العودة
+        </div>
+        <div class="nav-title">
+            <h1 class="glitch" data-text="الخريطة_الشبكية">الخريطة الشبكية</h1>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-refresh" onclick="refreshNetworkMap()">
+                <span class="btn-icon">🔄</span>
+                تحديث الخريطة
+            </button>
+            <button class="btn btn-scan" onclick="scanNetwork()">
+                <span class="btn-icon">🔍</span>
+                مسح الشبكة
+            </button>
+        </div>
+    </nav>
+    
+    <main class="network-container">
+        <div class="network-controls">
+            <div class="control-group">
+                <label for="target-select">اختر الهدف:</label>
+                <select id="target-select" class="control-select" onchange="loadTargetNetwork()">
+                    <option value="ALJANOOB368">ALJANOOB368</option>
+                    <option value="CYBER_CELL_009">CYBER_CELL_009</option>
+                    <option value="all">جميع الأهداف</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="view-mode">وضع العرض:</label>
+                <select id="view-mode" class="control-select" onchange="changeViewMode()">
+                    <option value="graph">رسم بياني</option>
+                    <option value="radial">شعاعي</option>
+                    <option value="hierarchical">هرمي</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="depth">عمق البحث:</label>
+                <input type="range" id="depth" min="1" max="5" value="3" 
+                       class="control-range" onchange="updateDepth()">
+                <span class="range-value" id="depth-value">3 مستويات</span>
+            </div>
+        </div>
+        
+        <div class="network-map-container">
+            <div class="map-view" id="network-graph">
+                <!-- سيتم رسم الشبكة هنا -->
+            </div>
+            
+            <div class="network-info">
+                <div class="info-card">
+                    <div class="card-header">
+                        <h3 class="neon-cyan">معلومات الشبكة</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="network-stats">
+                            <div class="stat">
+                                <span class="stat-label">إجمالي العقد:</span>
+                                <span class="stat-value" id="total-nodes">--</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">الروابط:</span>
+                                <span class="stat-value" id="total-links">--</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">الكثافة:</span>
+                                <span class="stat-value" id="density">--</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">القطر:</span>
+                                <span class="stat-value" id="diameter">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="card-header">
+                        <h3 class="neon-green">العقد الرئيسية</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="key-nodes" id="key-nodes">
+                            <!-- سيتم ملؤها -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="card-header">
+                        <h3 class="neon-yellow">التحليل</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="analysis-results" id="analysis-results">
+                            <!-- سيتم ملؤها -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="network-details">
+            <div class="details-card">
+                <div class="card-header">
+                    <h3 class="neon-purple">تفاصيل العقدة المحددة</h3>
+                </div>
+                <div class="card-content">
+                    <div class="node-details" id="node-details">
+                        <p>اختر عقدة لعرض تفاصيلها</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="details-card">
+                <div class="card-header">
+                    <h3 class="neon-red">التوصيات</h3>
+                </div>
+                <div class="card-content">
+                    <div class="recommendations" id="network-recommendations">
+                        <ul>
+                            <li>تحميل الشبكة لعرض التوصيات</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="../assets/js/network-graph.js"></script>
+    <script src="../assets/js/matrix.js"></script>
+    <script>
+        let currentNetwork = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            startMatrixEffect();
+            loadNetworkMap();
+        });
+        
+        function loadNetworkMap() {
+            const targetId = document.getElementById('target-select').value;
+            generateNetworkData(targetId);
+        }
+        
+        function generateNetworkData(targetId) {
+            // بيانات شبكة وهمية
+            const network = {
+                nodes: [
+                    { id: 'ALJANOOB368', name: 'ALJANOOB 360', type: 'primary', group: 1 },
+                    { id: 'HUSSEIN_ALQADI', name: 'حسين القاضي', type: 'secondary', group: 1 },
+                    { id: 'SAEED_ALMAS', name: 'سعيد الماس', type: 'secondary', group: 1 },
+                    { id: 'OMAR_ALYAFEI', name: 'عمر اليافعي', type: 'tertiary', group: 1 },
+                    { id: 'AHMED_ALHADAD', name: 'أحمد الحداد', type: 'tertiary', group: 2 },
+                    { id: 'MOHAMMED_ALI', name: 'محمد علي', type: 'secondary', group: 2 },
+                    { id: 'CYBER_CELL_009', name: 'الخلية 9', type: 'primary', group: 3 }
+                ],
+                links: [
+                    { source: 'ALJANOOB368', target: 'HUSSEIN_ALQADI', strength: 'strong' },
+                    { source: 'ALJANOOB368', target: 'SAEED_ALMAS', strength: 'medium' },
+                    { source: 'ALJANOOB368', target: 'OMAR_ALYAFEI', strength: 'weak' },
+                    { source: 'HUSSEIN_ALQADI', target: 'AHMED_ALHADAD', strength: 'weak' },
+                    { source: 'SAEED_ALMAS', target: 'MOHAMMED_ALI', strength: 'medium' },
+                    { source: 'CYBER_CELL_009', target: 'MOHAMMED_ALI', strength: 'strong' }
+                ]
+            };
+            
+            currentNetwork = network;
+            drawNetworkGraph(network);
+            updateNetworkInfo(network);
+        }
+        
+        function drawNetworkGraph(network) {
+            const container = document.getElementById('network-graph');
+            const viewMode = document.getElementById('view-mode').value;
+            
+            let html = '';
+            
+            if (viewMode === 'radial') {
+                // العرض الشعاعي
+                const centerX = 50;
+                const centerY = 50;
+                const radius = 40;
+                
+                network.nodes.forEach((node, index) => {
+                    const angle = (index * 360) / network.nodes.length;
+                    const radian = angle * (Math.PI / 180);
+                    const x = centerX + radius * Math.cos(radian);
+                    const y = centerY + radius * Math.sin(radian);
+                    
+                    html += `
+                        <div class="network-node ${node.type}" 
+                             style="left: ${x}%; top: ${y}%"
+                             onclick="showNodeDetails('${node.id}')"
+                             data-id="${node.id}">
+                            <div class="node-label">${node.name}</div>
+                            <div class="node-type">${node.type}</div>
+                        </div>
+                    `;
+                });
+                
+                // رسم الروابط
+                network.links.forEach(link => {
+                    html += `<div class="network-link ${link.strength}"></div>`;
+                });
+                
+            } else {
+                // العرض الافتراضي
+                const positions = {
+                    'ALJANOOB368': { x: 50, y: 50 },
+                    'HUSSEIN_ALQADI': { x: 30, y: 30 },
+                    'SAEED_ALMAS': { x: 70, y: 30 },
+                    'OMAR_ALYAFEI': { x: 30, y: 70 },
+                    'AHMED_ALHADAD': { x: 20, y: 20 },
+                    'MOHAMMED_ALI': { x: 80, y: 50 },
+                    'CYBER_CELL_009': { x: 80, y: 80 }
+                };
+                
+                // رسم العقد
+                network.nodes.forEach(node => {
+                    const pos = positions[node.id] || { x: 50, y: 50 };
+                    
+                    html += `
+                        <div class="network-node ${node.type}" 
+                             style="left: ${pos.x}%; top: ${pos.y}%"
+                             onclick="showNodeDetails('${node.id}')"
+                             data-id="${node.id}">
+                            <div class="node-label">${node.name}</div>
+                            <div class="node-type">${node.type}</div>
+                        </div>
+                    `;
+                });
+                
+                // رسم الروابط
+                network.links.forEach(link => {
+                    const sourcePos = positions[link.source] || { x: 50, y: 50 };
+                    const targetPos = positions[link.target] || { x: 50, y: 50 };
+                    
+                    html += `
+                        <div class="network-link ${link.strength}"
+                             style="left: ${sourcePos.x}%; top: ${sourcePos.y}%;
+                                    width: ${Math.abs(targetPos.x - sourcePos.x)}%;
+                                    height: ${Math.abs(targetPos.y - sourcePos.y)}%;
+                                    transform: rotate(${Math.atan2(targetPos.y - sourcePos.y, targetPos.x - sourcePos.x)}rad)">
+                        </div>
+                    `;
+                });
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function updateNetworkInfo(network) {
+            // تحديث الإحصائيات
+            document.getElementById('total-nodes').textContent = network.nodes.length;
+            document.getElementById('total-links').textContent = network.links.length;
+            
+            // حساب الكثافة
+            const maxLinks = network.nodes.length * (network.nodes.length - 1) / 2;
+            const density = (network.links.length / maxLinks * 100).toFixed(1);
+            document.getElementById('density').textContent = `${density}%`;
+            
+            // حساب القطر (محاكاة)
+            document.getElementById('diameter').textContent = '3';
+            
+            // تحديث العقد الرئيسية
+            const keyNodes = network.nodes.filter(node => 
+                node.type === 'primary' || 
+                network.links.filter(l => l.source === node.id || l.target === node.id).length > 2
+            );
+            
+            const keyNodesHtml = keyNodes.map(node => `
+                <div class="key-node">
+                    <span class="node-name">${node.name}</span>
+                    <span class="node-connections">
+                        ${network.links.filter(l => l.source === node.id || l.target === node.id).length} اتصال
+                    </span>
+                </div>
+            `).join('');
+            
+            document.getElementById('key-nodes').innerHTML = keyNodesHtml;
+            
+            // تحديث التحليل
+            const analysis = analyzeNetwork(network);
+            document.getElementById('analysis-results').innerHTML = `
+                <div class="analysis-item">
+                    <span class="analysis-label">تماسك الشبكة:</span>
+                    <span class="analysis-value ${analysis.cohesion > 50 ? 'good' : 'bad'}">
+                        ${analysis.cohesion}%
+                    </span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label">نقاط الضعف:</span>
+                    <span class="analysis-value">${analysis.vulnerabilities}</span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label">مركزية:</span>
+                    <span class="analysis-value">${analysis.centrality}</span>
+                </div>
+            `;
+        }
+        
+        function analyzeNetwork(network) {
+            // محاكاة تحليل الشبكة
+            return {
+                cohesion: Math.floor(Math.random() * 50) + 50,
+                vulnerabilities: network.nodes.filter(n => n.type === 'tertiary').length,
+                centrality: 'مرتفعة'
+            };
+        }
+        
+        function showNodeDetails(nodeId) {
+            const node = currentNetwork.nodes.find(n => n.id === nodeId);
+            if (!node) return;
+            
+            const connections = currentNetwork.links.filter(l => 
+                l.source === nodeId || l.target === nodeId
+            );
+            
+            const details = `
+                <div class="detail-item">
+                    <span class="detail-label">الاسم:</span>
+                    <span class="detail-value">${node.name}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">النوع:</span>
+                    <span class="detail-value ${node.type}">${node.type}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">عدد الاتصالات:</span>
+                    <span class="detail-value">${connections.length}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">الاتصالات القوية:</span>
+                    <span class="detail-value">
+                        ${connections.filter(c => c.strength === 'strong').length}
+                    </span>
+                </div>
+            `;
+            
+            document.getElementById('node-details').innerHTML = details;
+            
+            // تحديث التوصيات
+            updateRecommendations(node, connections);
+        }
+        
+        function updateRecommendations(node, connections) {
+            let recommendations = [];
+            
+            if (node.type === 'primary') {
+                recommendations.push('مراقبة مستمرة للعقدة الرئيسية');
+                recommendations.push('تحليل جميع الاتصالات');
+            }
+            
+            if (connections.length > 3) {
+                recommendations.push('دراسة دور الوسيط');
+            }
+            
+            if (connections.some(c => c.strength === 'strong')) {
+                recommendations.push('فحص الاتصالات القوية');
+            }
+            
+            const html = recommendations.length > 0 ? 
+                '<ul>' + recommendations.map(r => `<li>${r}</li>`).join('') + '</ul>' :
+                '<p>لا توجد توصيات خاصة</p>';
+            
+            document.getElementById('network-recommendations').innerHTML = html;
+        }
+        
+        function refreshNetworkMap() {
+            loadNetworkMap();
+            alert('تم تحديث الخريطة');
+        }
+        
+        function scanNetwork() {
+            const depth = document.getElementById('depth').value;
+            alert(`جاري مسح الشبكة بعمق ${depth} مستويات...`);
+            
+            setTimeout(() => {
+                // إضافة عقد جديدة محاكاة للمسح
+                const newNode = {
+                    id: 'NEW_NODE_' + Date.now(),
+                    name: 'عقدة جديدة',
+                    type: 'tertiary',
+                    group: 4
+                };
+                
+                currentNetwork.nodes.push(newNode);
+                currentNetwork.links.push({
+                    source: 'ALJANOOB368',
+                    target: newNode.id,
+                    strength: 'weak'
+                });
+                
+                drawNetworkGraph(currentNetwork);
+                updateNetworkInfo(currentNetwork);
+                alert('تم اكتشاف عقدة جديدة!');
+            }, 2000);
+        }
+        
+        function loadTargetNetwork() {
+            loadNetworkMap();
+        }
+        
+        function changeViewMode() {
+            if (currentNetwork) {
+                drawNetworkGraph(currentNetwork);
+            }
+        }
+        
+        function updateDepth() {
+            const depth = document.getElementById('depth').value;
+            document.getElementById('depth-value').textContent = `${depth} مستويات`;
+        }
+    </script>
+    
+    <style>
+        .network-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .network-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(26, 26, 46, 0.5);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-group label {
+            color: var(--neon-cyan);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .control-select, .control-range {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .control-range {
+            padding: 0;
+            height: 5px;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, var(--neon-green), var(--neon-red));
+        }
+        
+        .control-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--neon-cyan);
+            cursor: pointer;
+        }
+        
+        .range-value {
+            color: var(--neon-cyan);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .network-map-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            height: 600px;
+        }
+        
+        .map-view {
+            background: rgba(17, 17, 31, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            min-height: 600px;
+        }
+        
+        .network-node {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        
+        .network-node.primary {
+            background: rgba(255, 0, 64, 0.2);
+            border: 2px solid var(--neon-red);
+            box-shadow: 0 0 20px rgba(255, 0, 64, 0.3);
+        }
+        
+        .network-node.secondary {
+            background: rgba(255, 157, 0, 0.2);
+            border: 2px solid var(--neon-yellow);
+            box-shadow: 0 0 15px rgba(255, 157, 0, 0.3);
+        }
+        
+        .network-node.tertiary {
+            background: rgba(0, 204, 255, 0.2);
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 204, 255, 0.3);
+        }
+        
+        .network-node:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            z-index: 20;
+        }
+        
+        .node-label {
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-bottom: 0.25rem;
+        }
+        
+        .node-type {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.1rem 0.5rem;
+            border-radius: 10px;
+        }
+        
+        .network-link {
+            position: absolute;
+            background: rgba(0, 255, 157, 0.3);
+            transform-origin: 0 0;
+            z-index: 5;
+        }
+        
+        .network-link.strong {
+            background: rgba(0, 255, 157, 0.5);
+            height: 3px;
+        }
+        
+        .network-link.medium {
+            background: rgba(0, 255, 157, 0.3);
+            height: 2px;
+        }
+        
+        .network-link.weak {
+            background: rgba(0, 255, 157, 0.1);
+            height: 1px;
+        }
+        
+        .network-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .info-card {
+            background: linear-gradient(145deg, var(--secondary-bg), var(--tertiary-bg));
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .info-card .card-header {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .info-card .card-content {
+            padding: 1.5rem;
+        }
+        
+        .network-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--neon-cyan);
+        }
+        
+        .key-nodes {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .key-node {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
+        .node-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .node-connections {
+            font-size: 0.8rem;
+            color: var(--neon-green);
+        }
+        
+        .analysis-results {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .analysis-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .analysis-item:last-child {
+            border-bottom: none;
+        }
+        
+        .analysis-label {
+            font-size: 0.9rem;
+        }
+        
+        .analysis-value {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .analysis-value.good {
+            color: var(--neon-green);
+        }
+        
+        .analysis-value.bad {
+            color: var(--neon-red);
+        }
+        
+        .network-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .details-card {
+            background: linear-gradient(145deg, var(--secondary-bg), var(--tertiary-bg));
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .details-card .card-header {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .details-card .card-content {
+            padding: 1.5rem;
+        }
+        
+        .node-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .detail-value {
+            font-weight: bold;
+        }
+        
+        .detail-value.primary {
+            color: var(--neon-red);
+        }
+        
+        .detail-value.secondary {
+            color: var(--neon-yellow);
+        }
+        
+        .detail-value.tertiary {
+            color: var(--neon-blue);
+        }
+        
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .recommendations li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .recommendations li:last-child {
+            border-bottom: none;
+        }
+        
+        .recommendations li:before {
+            content: "→ ";
+            color: var(--neon-red);
+            margin-left: 0.5rem;
+        }
+    </style>
+</body>
+</html>

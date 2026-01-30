@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التحكم بالنظام | نظام أبو جمال</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="matrix-bg">
+    <div id="matrix-canvas"></div>
+    
+    <nav class="control-nav">
+        <div class="nav-back" onclick="window.history.back()">← العودة</div>
+        <div class="nav-title"><h1>التحكم بالنظام</h1></div>
+    </nav>
+    
+    <main class="control-container">
+        <div class="control-grid">
+            <!-- إعدادات الأمان -->
+            <div class="control-section">
+                <h2 class="neon-red">🛡️ إعدادات الأمان</h2>
+                <div class="control-group">
+                    <label>مستوى الأمان:</label>
+                    <select class="control-select">
+                        <option>منخفض</option>
+                        <option>متوسط</option>
+                        <option selected>عالي</option>
+                        <option>قصوى</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>التشفير:</label>
+                    <select class="control-select">
+                        <option>AES-128</option>
+                        <option selected>AES-256</option>
+                        <option>Quantum</option>
+                    </select>
+                </div>
+                <button class="btn btn-save">💾 حفظ الإعدادات</button>
+            </div>
+            
+            <!-- مراقبة النظام -->
+            <div class="control-section">
+                <h2 class="neon-green">📊 مراقبة النظام</h2>
+                <div class="monitoring-stats">
+                    <div class="stat">
+                        <span>استخدام CPU:</span>
+                        <span class="value">24%</span>
+                    </div>
+                    <div class="stat">
+                        <span>الذاكرة:</span>
+                        <span class="value">67%</span>
+                    </div>
+                    <div class="stat">
+                        <span>التخزين:</span>
+                        <span class="value">45%</span>
+                    </div>
+                </div>
+                <button class="btn btn-refresh">🔄 تحديث</button>
+            </div>
+            
+            <!-- إدارة السجلات -->
+            <div class="control-section">
+                <h2 class="neon-blue">📝 إدارة السجلات</h2>
+                <div class="control-group">
+                    <label>مدة الاحتفاظ:</label>
+                    <select class="control-select">
+                        <option>7 أيام</option>
+                        <option selected>30 يوماً</option>
+                        <option>90 يوماً</option>
+                        <option>للأبد</option>
+                    </select>
+                </div>
+                <button class="btn btn-clear">🗑️ مسح السجلات القديمة</button>
+            </div>
+            
+            <!-- النسخ الاحتياطي -->
+            <div class="control-section">
+                <h2 class="neon-purple">💾 النسخ الاحتياطي</h2>
+                <div class="control-group">
+                    <label>آخر نسخة:</label>
+                    <span class="value">2024-01-19 23:45</span>
+                </div>
+                <button class="btn btn-backup">📥 إنشاء نسخة احتياطية</button>
+                <button class="btn btn-restore">🔄 استعادة</button>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // محاكاة تحديث الإحصائيات
+            setInterval(() => {
+                document.querySelectorAll('.stat .value').forEach(el => {
+                    el.textContent = Math.floor(Math.random() * 100) + '%';
+                });
+            }, 5000);
+        });
+    </script>
+    
+    <style>
+        .control-container { padding: 2rem; }
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .control-section {
+            background: rgba(26, 26, 46, 0.8);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .control-group {
+            margin: 1rem 0;
+        }
+        .control-select {
+            width: 100%;
+            padding: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+        }
+        .btn {
+            width: 100%;
+            margin: 0.5rem 0;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-save { background: var(--neon-green); color: black; }
+        .btn-refresh { background: var(--neon-blue); color: black; }
+        .btn-clear { background: var(--neon-red); color: white; }
+        .btn-backup { background: var(--neon-purple); color: white; }
+        .btn-restore { background: var(--neon-yellow); color: black; }
+    </style>
+</body>
+</html>

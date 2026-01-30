@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجلات النظام | نظام أبو جمال</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+</head>
+<body class="matrix-bg">
+    <div id="matrix-canvas"></div>
+    
+    <nav class="logs-nav">
+        <div class="nav-back" onclick="window.history.back()">
+            ← العودة
+        </div>
+        <div class="nav-title">
+            <h1 class="glitch" data-text="سجلات_النظام">سجلات النظام</h1>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-clear" onclick="clearLogs()">
+                <span class="btn-icon">🗑️</span>
+                مسح السجلات
+            </button>
+            <button class="btn btn-export" onclick="exportLogs()">
+                <span class="btn-icon">📥</span>
+                تصدير
+            </button>
+        </div>
+    </nav>
+    
+    <main class="logs-container">
+        <div class="logs-controls">
+            <div class="filter-group">
+                <label for="log-level">تصفية بالمستوى:</label>
+                <select id="log-level" class="filter-select" onchange="filterLogs()">
+                    <option value="all">الكل</option>
+                    <option value="info">معلومات</option>
+                    <option value="warning">تحذير</option>
+                    <option value="error">خطأ</option>
+                    <option value="critical">حرج</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="log-search">بحث:</label>
+                <input type="text" id="log-search" class="filter-input" 
+                       placeholder="ابحث في السجلات..." oninput="searchLogs()">
+            </div>
+            
+            <div class="filter-group">
+                <label for="log-date">التاريخ:</label>
+                <input type="date" id="log-date" class="filter-input" onchange="filterByDate()">
+            </div>
+        </div>
+        
+        <div class="logs-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-info">
+                    <div class="stat-value">1,247</div>
+                    <div class="stat-label">إجمالي السجلات</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-info">
+                    <div class="stat-value">24</div>
+                    <div class="stat-label">تحذيرات اليوم</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-info">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">أخطاء حرجة</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">👁️</div>
+                <div class="stat-info">
+                    <div class="stat-value">85%</div>
+                    <div class="stat-label">نشاط النظام</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="logs-viewer">
+            <div class="logs-header">
+                <div class="header-cell time">الوقت</div>
+                <div class="header-cell level">المستوى</div>
+                <div class="header-cell module">الوحدة</div>
+                <div class="header-cell message">الرسالة</div>
+                <div class="header-cell operator">المشغل</div>
+            </div>
+            
+            <div class="logs-content" id="logs-content">
+                <!-- سيتم ملؤها بواسطة JavaScript -->
+            </div>
+        </div>
+        
+        <div class="logs-pagination">
+            <button class="page-btn" onclick="prevPage()">السابق</button>
+            <span class="page-info" id="page-info">الصفحة 1 من 10</span>
+            <button class="page-btn" onclick="nextPage()">التالي</button>
+        </div>
+    </main>
+    
+    <script src="../assets/js/logs.js"></script>
+    <script src="../assets/js/matrix.js"></script>
+    <script>
+        let currentPage = 1;
+        const logsPerPage = 20;
+        let allLogs = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            startMatrixEffect();
+            loadLogs();
+        });
+        
+        function loadLogs() {
+            // توليد سجلات وهمية
+            allLogs = generateSampleLogs();
+            displayLogs();
+        }
+        
+        function generateSampleLogs() {
+            const levels = ['info', 'warning', 'error', 'critical'];
+            const modules = ['SYSTEM', 'ANALYZER', 'NETWORK', 'SECURITY', 'DATABASE'];
+            const operators = ['AJ-OPERATOR-001', 'AJ-ANALYST-002', 'AJ-MONITOR-003'];
+            const messages = [
+                'System scan initiated',
+                'Target acquired: ALJANOOB368',
+                'Network anomaly detected',
+                'Security protocol updated',
+                'Database backup completed',
+                'Threat analysis in progress',
+                'New target identified',
+                'Encryption key rotated',
+                'Access violation attempt blocked',
+                'System performance optimized'
+            ];
+            
+            const logs = [];
+            const now = new Date();
+            
+            for (let i = 0; i < 1247; i++) {
+                const time = new Date(now);
+                time.setMinutes(time.getMinutes() - Math.floor(Math.random() * 10080)); // أسبوع كامل
+                
+                const level = levels[Math.floor(Math.random() * levels.length)];
+                const module = modules[Math.floor(Math.random() * modules.length)];
+                const operator = operators[Math.floor(Math.random() * operators.length)];
+                const message = messages[Math.floor(Math.random() * messages.length)];
+                
+                logs.push({
+                    id: i + 1,
+                    timestamp: time.toISOString(),
+                    level,
+                    module,
+                    message: `${message} #${Math.floor(Math.random() * 1000)}`,
+                    operator
+                });
+            }
+            
+            // ترتيب تنازلي حسب الوقت
+            return logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }
+        
+        function displayLogs() {
+            const start = (currentPage - 1) * logsPerPage;
+            const end = start + logsPerPage;
+            const pageLogs = allLogs.slice(start, end);
+            
+            const container = document.getElementById('logs-content');
+            let html = '';
+            
+            pageLogs.forEach(log => {
+                const time = new Date(log.timestamp).toLocaleTimeString('ar-SA');
+                const date = new Date(log.timestamp).toLocaleDateString('ar-SA');
+                
+                html += `
+                    <div class="log-entry level-${log.level}">
+                        <div class="log-cell time">
+                            <div class="log-time">${time}</div>
+                            <div class="log-date">${date}</div>
+                        </div>
+                        <div class="log-cell level">
+                            <span class="level-badge ${log.level}">${getLevelText(log.level)}</span>
+                        </div>
+                        <div class="log-cell module">${log.module}</div>
+                        <div class="log-cell message">${log.message}</div>
+                        <div class="log-cell operator">${log.operator}</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            updatePageInfo();
+        }
+        
+        function getLevelText(level) {
+            const levels = {
+                'info': 'معلومات',
+                'warning': 'تحذير',
+                'error': 'خطأ',
+                'critical': 'حرج'
+            };
+            return levels[level] || level;
+        }
+        
+        function filterLogs() {
+            const level = document.getElementById('log-level').value;
+            
+            if (level === 'all') {
+                displayLogs();
+            } else {
+                const filteredLogs = allLogs.filter(log => log.level === level);
+                displayFilteredLogs(filteredLogs);
+            }
+        }
+        
+        function searchLogs() {
+            const searchTerm = document.getElementById('log-search').value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayLogs();
+                return;
+            }
+            
+            const filteredLogs = allLogs.filter(log => 
+                log.message.toLowerCase().includes(searchTerm) ||
+                log.module.toLowerCase().includes(searchTerm) ||
+                log.operator.toLowerCase().includes(searchTerm)
+            );
+            
+            displayFilteredLogs(filteredLogs);
+        }
+        
+        function filterByDate() {
+            const date = document.getElementById('log-date').value;
+            
+            if (!date) {
+                displayLogs();
+                return;
+            }
+            
+            const selectedDate = new Date(date);
+            const filteredLogs = allLogs.filter(log => {
+                const logDate = new Date(log.timestamp);
+                return logDate.toDateString() === selectedDate.toDateString();
+            });
+            
+            displayFilteredLogs(filteredLogs);
+        }
+        
+        function displayFilteredLogs(filteredLogs) {
+            const start = (currentPage - 1) * logsPerPage;
+            const end = start + logsPerPage;
+            const pageLogs = filteredLogs.slice(start, end);
+            
+            const container = document.getElementById('logs-content');
+            let html = '';
+            
+            pageLogs.forEach(log => {
+                const time = new Date(log.timestamp).toLocaleTimeString('ar-SA');
+                const date = new Date(log.timestamp).toLocaleDateString('ar-SA');
+                
+                html += `
+                    <div class="log-entry level-${log.level}">
+                        <div class="log-cell time">
+                            <div class="log-time">${time}</div>
+                            <div class="log-date">${date}</div>
+                        </div>
+                        <div class="log-cell level">
+                            <span class="level-badge ${log.level}">${getLevelText(log.level)}</span>
+                        </div>
+                        <div class="log-cell module">${log.module}</div>
+                        <div class="log-cell message">${log.message}</div>
+                        <div class="log-cell operator">${log.operator}</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            updatePageInfo(filteredLogs.length);
+        }
+        
+        function updatePageInfo(total = allLogs.length) {
+            const totalPages = Math.ceil(total / logsPerPage);
+            document.getElementById('page-info').textContent = 
+                `الصفحة ${currentPage} من ${totalPages}`;
+        }
+        
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                displayLogs();
+            }
+        }
+        
+        function nextPage() {
+            const totalPages = Math.ceil(allLogs.length / logsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayLogs();
+            }
+        }
+        
+        function clearLogs() {
+            if (confirm('هل تريد مسح جميع السجلات؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                allLogs = [];
+                currentPage = 1;
+                displayLogs();
+                alert('تم مسح السجلات');
+            }
+        }
+        
+        function exportLogs() {
+            alert('تم تصدير السجلات (محاكاة)');
+        }
+    </script>
+    
+    <style>
+        .logs-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .logs-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(26, 26, 46, 0.5);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            color: var(--neon-cyan);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .filter-select, .filter-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .filter-input:focus, .filter-select:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+        }
+        
+        .logs-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(145deg, var(--secondary-bg), var(--tertiary-bg));
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-cyan);
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+        }
+        
+        .stat-info {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--neon-cyan);
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.25rem;
+        }
+        
+        .logs-viewer {
+            background: rgba(26, 26, 46, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .logs-header {
+            display: grid;
+            grid-template-columns: 150px 100px 120px 1fr 150px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: bold;
+            color: var(--neon-cyan);
+        }
+        
+        .header-cell {
+            padding: 0 0.5rem;
+        }
+        
+        .logs-content {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            display: grid;
+            grid-template-columns: 150px 100px 120px 1fr 150px;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.3s;
+        }
+        
+        .log-entry:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .log-entry.level-critical {
+            background: rgba(255, 0, 64, 0.05);
+            border-left: 4px solid var(--neon-red);
+        }
+        
+        .log-entry.level-error {
+            background: rgba(255, 85, 0, 0.05);
+            border-left: 4px solid #ff5500;
+        }
+        
+        .log-entry.level-warning {
+            background: rgba(255, 157, 0, 0.05);
+            border-left: 4px solid var(--neon-yellow);
+        }
+        
+        .log-cell {
+            padding: 0 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .log-time {
+            font-weight: bold;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .log-date {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .level-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .level-badge.info {
+            background: rgba(0, 255, 157, 0.1);
+            color: var(--neon-green);
+            border: 1px solid var(--neon-green);
+        }
+        
+        .level-badge.warning {
+            background: rgba(255, 157, 0, 0.1);
+            color: var(--neon-yellow);
+            border: 1px solid var(--neon-yellow);
+        }
+        
+        .level-badge.error {
+            background: rgba(255, 85, 0, 0.1);
+            color: #ff5500;
+            border: 1px solid #ff5500;
+        }
+        
+        .level-badge.critical {
+            background: rgba(255, 0, 64, 0.1);
+            color: var(--neon-red);
+            border: 1px solid var(--neon-red);
+        }
+        
+        .logs-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            padding: 1rem;
+        }
+        
+        .page-btn {
+            background: var(--neon-cyan);
+            color: black;
+            border: none;
+            padding: 0.5rem 2rem;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .page-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 204, 255, 0.3);
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .page-info {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+    </style>
+</body>
+</html>

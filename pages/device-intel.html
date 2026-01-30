@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ذكاء الجهاز | نظام أبو جمال</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="matrix-bg">
+    <div id="matrix-canvas"></div>
+    
+    <nav class="device-nav">
+        <div class="nav-back" onclick="window.history.back()">← العودة</div>
+        <div class="nav-title"><h1>ذكاء الجهاز</h1></div>
+    </nav>
+    
+    <main class="device-container">
+        <div class="device-info">
+            <h2>معلومات الجهاز</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span>نظام التشغيل:</span>
+                    <span class="value">Android 12</span>
+                </div>
+                <div class="info-item">
+                    <span>المعالج:</span>
+                    <span class="value">Unisoc T606</span>
+                </div>
+                <div class="info-item">
+                    <span>الذاكرة:</span>
+                    <span class="value">4GB RAM</span>
+                </div>
+                <div class="info-item">
+                    <span>التخزين:</span>
+                    <span class="value">128GB</span>
+                </div>
+                <div class="info-item">
+                    <span>آخر تحديث:</span>
+                    <span class="value">2023-08-05</span>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <style>
+        .device-container { padding: 2rem; }
+        .device-info {
+            background: rgba(26,26,46,0.8);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 5px;
+        }
+        .value { color: var(--neon-green); }
+    </style>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ارتباط الهاتف | نظام أبو جمال</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="matrix-bg">
+    <div id="matrix-canvas"></div>
+    
+    <nav class="phone-nav">
+        <div class="nav-back" onclick="window.history.back()">← العودة</div>
+        <div class="nav-title"><h1>ارتباط الهاتف</h1></div>
+    </nav>
+    
+    <main class="phone-container">
+        <div class="input-section">
+            <input type="text" id="phone-input" placeholder="أدخل رقم الهاتف..." class="phone-input">
+            <button onclick="analyzePhone()" class="analyze-btn">🔍 تحليل</button>
+        </div>
+        
+        <div class="results-section" id="results">
+            <div class="result-card">
+                <h3>النتائج</h3>
+                <p>أدخل رقم هاتف للتحليل</p>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        function analyzePhone() {
+            const input = document.getElementById('phone-input').value;
+            const results = document.getElementById('results');
+            
+            results.innerHTML = `
+                <div class="result-card">
+                    <h3>نتائج تحليل الرقم: ${input}</h3>
+                    <div class="result-item">
+                        <span>المشغل:</span>
+                        <span>يمن موبايل</span>
+                    </div>
+                    <div class="result-item">
+                        <span>المنطقة:</span>
+                        <span>عدن، اليمن</span>
+                    </div>
+                    <div class="result-item">
+                        <span>الحالة:</span>
+                        <span class="active">نشط</span>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+    
+    <style>
+        .phone-container { padding: 2rem; }
+        .input-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .phone-input {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
+            color: white;
+            border-radius: 5px;
+        }
+        .analyze-btn {
+            padding: 1rem 2rem;
+            background: var(--neon-cyan);
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result-card {
+            background: rgba(26,26,46,0.8);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .active { color: var(--neon-green); }
+    </style>
+</body>
+</html>

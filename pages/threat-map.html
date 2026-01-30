@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خريطة التهديدات | نظام أبو جمال</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+</head>
+<body class="matrix-bg">
+    <div id="matrix-canvas"></div>
+    
+    <!-- شريط التنقل -->
+    <nav class="threat-nav">
+        <div class="nav-back" onclick="window.history.back()">
+            ← العودة
+        </div>
+        <div class="nav-title">
+            <h1 class="glitch" data-text="خريطة_التهديدات">خريطة التهديدات</h1>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-refresh" onclick="refreshThreatMap()">
+                <span class="btn-icon">🔄</span>
+                تحديث
+            </button>
+        </div>
+    </nav>
+    
+    <main class="threat-container">
+        <div class="threat-header">
+            <div class="threat-level-indicator">
+                <div class="level-display critical">
+                    <span class="level-text">مستوى التهديد:</span>
+                    <span class="level-value neon-red">عالٍ</span>
+                </div>
+                <div class="threat-stats">
+                    <div class="stat">
+                        <span class="stat-label">تهديدات نشطة:</span>
+                        <span class="stat-value neon-red">14</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">آخر تحديث:</span>
+                        <span class="stat-value">الآن</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="threat-map-container">
+            <!-- خريطة العالم -->
+            <div class="world-map" id="world-map">
+                <!-- سيتم ملؤها بالتهديدات -->
+            </div>
+            
+            <!-- قائمة التهديدات -->
+            <div class="threat-list-container">
+                <div class="threat-list-header">
+                    <h3 class="neon-yellow">التهديدات النشطة</h3>
+                    <div class="threat-count">14 تهديد</div>
+                </div>
+                
+                <div class="threat-list" id="threat-list">
+                    <!-- سيتم ملؤها بواسطة JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- لوحة التحليل -->
+        <div class="threat-analysis">
+            <div class="analysis-card">
+                <div class="card-header">
+                    <h3 class="neon-cyan">تحليل الأنماط</h3>
+                </div>
+                <div class="card-content">
+                    <div class="pattern-analysis">
+                        <div class="pattern-item">
+                            <span class="pattern-label">نشاط ليلي:</span>
+                            <span class="pattern-value">85%</span>
+                            <div class="pattern-bar">
+                                <div class="pattern-fill" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="pattern-item">
+                            <span class="pattern-label">استخدام اتصالات مشفرة:</span>
+                            <span class="pattern-value">72%</span>
+                            <div class="pattern-bar">
+                                <div class="pattern-fill" style="width: 72%"></div>
+                            </div>
+                        </div>
+                        <div class="pattern-item">
+                            <span class="pattern-label">هواتف محروقة:</span>
+                            <span class="pattern-value">64%</span>
+                            <div class="pattern-bar">
+                                <div class="pattern-fill" style="width: 64%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analysis-card">
+                <div class="card-header">
+                    <h3 class="neon-purple">التنبؤات</h3>
+                </div>
+                <div class="card-content">
+                    <ul class="predictions-list">
+                        <li class="prediction-item">
+                            <span class="prediction-icon">⚠️</span>
+                            <span class="prediction-text">زيادة النشاط خلال الـ24 ساعة القادمة</span>
+                        </li>
+                        <li class="prediction-item">
+                            <span class="prediction-icon">📱</span>
+                            <span class="prediction-text">تغيير أرقام هواتف متوقع</span>
+                        </li>
+                        <li class="prediction-item">
+                            <span class="prediction-icon">🌐</span>
+                            <span class="prediction-text">توسع في الشبكات الاجتماعية</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="../assets/js/threat-map.js"></script>
+    <script src="../assets/js/matrix.js"></script>
+    <script>
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            startMatrixEffect();
+            loadThreatMap();
+        });
+        
+        function refreshThreatMap() {
+            const threatList = document.getElementById('threat-list');
+            threatList.innerHTML = '<div class="loading">جاري تحديث البيانات...</div>';
+            
+            setTimeout(() => {
+                loadThreatMap();
+            }, 1500);
+        }
+        
+        function loadThreatMap() {
+            // بيانات التهديدات الوهمية
+            const threats = [
+                { id: 1, region: 'اليمن', level: 'high', count: 5, description: 'مجموعات إعلامية معارضة' },
+                { id: 2, region: 'سوريا', level: 'critical', count: 3, description: 'خلايا إلكترونية نشطة' },
+                { id: 3, region: 'العراق', level: 'medium', count: 4, description: 'منصات تواصل مشبوهة' },
+                { id: 4, region: 'لبنان', level: 'high', count: 2, description: 'تجنيد إلكتروني' }
+            ];
+            
+            const threatList = document.getElementById('threat-list');
+            let html = '';
+            
+            threats.forEach(threat => {
+                html += `
+                    <div class="threat-item level-${threat.level}">
+                        <div class="threat-info">
+                            <div class="threat-region">${threat.region}</div>
+                            <div class="threat-description">${threat.description}</div>
+                        </div>
+                        <div class="threat-stats">
+                            <div class="threat-count">${threat.count} هدف</div>
+                            <div class="threat-level ${threat.level}">
+                                ${threat.level === 'critical' ? 'حرج' : 
+                                  threat.level === 'high' ? 'عالي' : 'متوسط'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            threatList.innerHTML = html;
+            
+            // تحديث خريطة العالم
+            updateWorldMap(threats);
+        }
+        
+        function updateWorldMap(threats) {
+            const worldMap = document.getElementById('world-map');
+            let html = '';
+            
+            // مواقع وهمية على الخريطة
+            const locations = [
+                { x: 65, y: 45, region: 'اليمن', level: 'high' },
+                { x: 58, y: 40, region: 'سوريا', level: 'critical' },
+                { x: 62, y: 42, region: 'العراق', level: 'medium' },
+                { x: 57, y: 41, region: 'لبنان', level: 'high' }
+            ];
+            
+            locations.forEach(loc => {
+                html += `
+                    <div class="threat-marker ${loc.level}" 
+                         style="left: ${loc.x}%; top: ${loc.y}%"
+                         title="${loc.region}">
+                        <div class="marker-pulse"></div>
+                        <div class="marker-center"></div>
+                    </div>
+                `;
+            });
+            
+            worldMap.innerHTML = html;
+        }
+    </script>
+    
+    <style>
+        .threat-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .threat-header {
+            margin-bottom: 2rem;
+        }
+        
+        .threat-level-indicator {
+            background: linear-gradient(145deg, rgba(255, 0, 64, 0.1), rgba(255, 0, 64, 0.05));
+            border: 1px solid var(--neon-red);
+            border-radius: 10px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .level-display {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .level-text {
+            font-size: 1.2rem;
+        }
+        
+        .level-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        .threat-stats {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        
+        .threat-map-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            height: 500px;
+        }
+        
+        .world-map {
+            background: rgba(26, 26, 46, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100"><path d="M10,10 L90,10 L90,90 L10,90 Z" fill="none" stroke="rgba(0,255,157,0.1)" stroke-width="0.5"/></svg>');
+        }
+        
+        .threat-marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        
+        .threat-marker.critical .marker-center {
+            background: var(--neon-red);
+            box-shadow: 0 0 20px var(--neon-red);
+        }
+        
+        .threat-marker.high .marker-center {
+            background: #ff5500;
+            box-shadow: 0 0 15px #ff5500;
+        }
+        
+        .threat-marker.medium .marker-center {
+            background: var(--neon-yellow);
+            box-shadow: 0 0 10px var(--neon-yellow);
+        }
+        
+        .marker-center {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .marker-pulse {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.3;
+            animation: pulse 2s infinite;
+        }
+        
+        .threat-list-container {
+            background: linear-gradient(145deg, var(--secondary-bg), var(--tertiary-bg));
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .threat-list-header {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .threat-count {
+            background: var(--neon-red);
+            color: black;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .threat-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .threat-item {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .threat-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .threat-item.level-critical {
+            border-left: 4px solid var(--neon-red);
+        }
+        
+        .threat-item.level-high {
+            border-left: 4px solid #ff5500;
+        }
+        
+        .threat-item.level-medium {
+            border-left: 4px solid var(--neon-yellow);
+        }
+        
+        .threat-region {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .threat-description {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .threat-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .threat-level {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .threat-level.critical {
+            background: rgba(255, 0, 64, 0.2);
+            color: var(--neon-red);
+            border: 1px solid var(--neon-red);
+        }
+        
+        .threat-level.high {
+            background: rgba(255, 85, 0, 0.2);
+            color: #ff5500;
+            border: 1px solid #ff5500;
+        }
+        
+        .threat-level.medium {
+            background: rgba(255, 157, 0, 0.2);
+            color: var(--neon-yellow);
+            border: 1px solid var(--neon-yellow);
+        }
+        
+        .threat-analysis {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .pattern-analysis {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .pattern-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .pattern-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pattern-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .pattern-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+            border-radius: 3px;
+        }
+        
+        .predictions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .prediction-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .prediction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .prediction-icon {
+            font-size: 1.2rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</body>
+</html>

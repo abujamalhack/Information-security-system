@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحليل الهدف | نظام أبو جمال</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link rel="stylesheet" href="../assets/css/neon.css">
+</head>
+<body class="matrix-bg">
+    <div id="matrix-canvas"></div>
+    
+    <!-- شريط التنقل -->
+    <nav class="analysis-nav">
+        <div class="nav-back" onclick="window.history.back()">
+            ← العودة
+        </div>
+        <div class="nav-title">
+            <h1 class="glitch" data-text="تحليل_الهدف">تحليل الهدف</h1>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-scan" onclick="startDeepScan()">
+                <span class="btn-icon">🔍</span>
+                مسح عميق
+            </button>
+            <button class="btn btn-export" onclick="exportAnalysis()">
+                <span class="btn-icon">📁</span>
+                تصدير
+            </button>
+        </div>
+    </nav>
+    
+    <main class="analysis-container">
+        <div class="analysis-grid">
+            <!-- لوحة الإدخال -->
+            <div class="analysis-card input-card">
+                <div class="card-header">
+                    <h3 class="neon-cyan">إدخال البيانات</h3>
+                </div>
+                <div class="card-content">
+                    <div class="input-group">
+                        <label for="target-input">رقم الهاتف أو معرّف الهدف:</label>
+                        <div class="input-with-button">
+                            <input 
+                                type="text" 
+                                id="target-input" 
+                                placeholder="+967XXXXXXXXX أو ALJANOOB368"
+                                class="analysis-input"
+                            >
+                            <button class="input-btn" onclick="analyzeTarget()">
+                                تحليل
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-targets">
+                        <h4>أهداف سريعة:</h4>
+                        <div class="target-buttons">
+                            <button class="target-btn" onclick="loadTarget('ALJANOOB368')">
+                                ALJANOOB368
+                            </button>
+                            <button class="target-btn" onclick="loadTarget('CYBER_CELL_009')">
+                                CYBER_CELL_009
+                            </button>
+                            <button class="target-btn" onclick="loadRandomTarget()">
+                                هدف عشوائي
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- لوحة النتائج -->
+            <div class="analysis-card results-card">
+                <div class="card-header">
+                    <h3 class="neon-green">نتائج التحليل</h3>
+                    <div class="scan-status" id="scan-status">
+                        <span class="status-dot"></span>
+                        جاهز
+                    </div>
+                </div>
+                <div class="card-content" id="results-content">
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <p>أدخل رقم هاتف أو معرّف الهدف لبدء التحليل</p>
+                        <p class="empty-hint">جرب: +967770835761</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- لوحة المخاطر -->
+            <div class="analysis-card risk-card">
+                <div class="card-header">
+                    <h3 class="neon-red">تقييم المخاطر</h3>
+                </div>
+                <div class="card-content" id="risk-content">
+                    <div class="risk-meter">
+                        <div class="risk-bar">
+                            <div class="risk-fill" id="risk-fill"></div>
+                        </div>
+                        <div class="risk-labels">
+                            <span>منخفض</span>
+                            <span>متوسط</span>
+                            <span>مرتفع</span>
+                            <span>حرج</span>
+                        </div>
+                    </div>
+                    <div class="risk-details" id="risk-details">
+                        <p>لم يتم تحليل أي هدف بعد</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- لوحة الشبكة -->
+            <div class="analysis-card network-card">
+                <div class="card-header">
+                    <h3 class="neon-purple">الشبكة الاجتماعية</h3>
+                </div>
+                <div class="card-content">
+                    <div class="network-graph" id="network-graph">
+                        <!-- سيتم ملؤه بواسطة JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- لوحة التفاصيل -->
+            <div class="analysis-card details-card">
+                <div class="card-header">
+                    <h3 class="neon-yellow">التفاصيل الفنية</h3>
+                </div>
+                <div class="card-content" id="details-content">
+                    <div class="detail-item">
+                        <span class="detail-label">آخر نشاط:</span>
+                        <span class="detail-value">--:--</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">المنطقة:</span>
+                        <span class="detail-value">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">نظام التشغيل:</span>
+                        <span class="detail-value">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">الثغرات:</span>
+                        <span class="detail-value">--</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- لوحة التوصيات -->
+            <div class="analysis-card recommendations-card">
+                <div class="card-header">
+                    <h3 class="neon-cyan">التوصيات</h3>
+                </div>
+                <div class="card-content" id="recommendations-content">
+                    <ul class="recommendations-list">
+                        <li>أدخل بيانات الهدف للحصول على توصيات</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- الصوتيات -->
+    <audio id="scan-sound" src="../assets/sounds/scan.mp3"></audio>
+    <audio id="alert-sound" src="../assets/sounds/alert.mp3"></audio>
+    
+    <script src="../assets/js/fake-database.js"></script>
+    <script src="../assets/js/analyzer.js"></script>
+    <script src="../assets/js/matrix.js"></script>
+    <script>
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            startMatrixEffect();
+            
+            // السماح بالإدخال بواسطة زر Enter
+            document.getElementById('target-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    analyzeTarget();
+                }
+            });
+        });
+        
+        // تحليل الهدف
+        function analyzeTarget() {
+            const input = document.getElementById('target-input').value.trim();
+            if (!input) return;
+            
+            // عرض حالة المسح
+            const statusEl = document.getElementById('scan-status');
+            statusEl.innerHTML = '<span class="status-dot scanning"></span> جاري التحليل...';
+            
+            // تشغيل صوت المسح
+            document.getElementById('scan-sound').play();
+            
+            // محاكاة التأخير
+            setTimeout(() => {
+                const analysis = analyzeTargetData(input);
+                displayAnalysis(analysis);
+                statusEl.innerHTML = '<span class="status-dot active"></span> التحليل مكتمل';
+            }, 1500);
+        }
+        
+        // تحليل البيانات
+        function analyzeTargetData(input) {
+            // تحقق إذا كان رقم هاتف
+            if (input.startsWith('+')) {
+                return DB.analyzePhoneNumber(input);
+            } else {
+                // إذا كان معرف الهدف
+                const target = DB.getTarget(input);
+                if (target) {
+                    return {
+                        found: true,
+                        target: {
+                            id: target.target_id,
+                            name: target.name,
+                            codename: target.codename,
+                            status: target.status,
+                            threatLevel: target.threatLevel
+                        },
+                        device: target.device,
+                        network: target.network,
+                        analysis: {
+                            riskScore: target.threatLevel === 'CRITICAL' ? 90 : 70,
+                            riskLevel: target.threatLevel,
+                            confidence: "HIGH"
+                        }
+                    };
+                }
+            }
+            
+            return { found: false, message: "لم يتم العثور على الهدف" };
+        }
+        
+        // عرض النتائج
+        function displayAnalysis(analysis) {
+            const resultsEl = document.getElementById('results-content');
+            
+            if (!analysis.found) {
+                resultsEl.innerHTML = `
+                    <div class="error-state">
+                        <div class="error-icon">⚠️</div>
+                        <h4>الهدف غير موجود</h4>
+                        <p>${analysis.message}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // عرض النتائج
+            resultsEl.innerHTML = `
+                <div class="target-header">
+                    <h4>${analysis.target.name}</h4>
+                    <span class="target-id">${analysis.target.id}</span>
+                </div>
+                <div class="target-info">
+                    <div class="info-row">
+                        <span class="info-label">الاسم الرمزي:</span>
+                        <span class="info-value neon-cyan">${analysis.target.codename || 'غير معروف'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">الحالة:</span>
+                        <span class="info-value neon-green">${analysis.target.status}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">مستوى التهديد:</span>
+                        <span class="info-value neon-red">${analysis.target.threatLevel}</span>
+                    </div>
+                </div>
+            `;
+            
+            // تحديث تقييم المخاطر
+            updateRiskAssessment(analysis.analysis.riskLevel, analysis.analysis.riskScore);
+            
+            // تحديث التفاصيل
+            updateDetails(analysis);
+            
+            // تحديث التوصيات
+            updateRecommendations(analysis);
+            
+            // تحديث الشبكة
+            updateNetworkGraph(analysis.network);
+            
+            // تشغيل صوت التنبيه إذا كان التهديد عالي
+            if (analysis.target.threatLevel === 'HIGH' || analysis.target.threatLevel === 'CRITICAL') {
+                document.getElementById('alert-sound').play();
+            }
+        }
+        
+        // تحديث تقييم المخاطر
+        function updateRiskAssessment(level, score) {
+            const fillEl = document.getElementById('risk-fill');
+            const detailsEl = document.getElementById('risk-details');
+            
+            let width = 0;
+            let color = '#00ff9d';
+            
+            switch(level) {
+                case 'CRITICAL':
+                    width = 100;
+                    color = '#ff0040';
+                    break;
+                case 'HIGH':
+                    width = 75;
+                    color = '#ff5500';
+                    break;
+                case 'MEDIUM':
+                    width = 50;
+                    color = '#ff9d00';
+                    break;
+                default:
+                    width = 25;
+                    color = '#00ff9d';
+            }
+            
+            fillEl.style.width = `${width}%`;
+            fillEl.style.background = `linear-gradient(90deg, ${color}, ${color}dd)`;
+            
+            detailsEl.innerHTML = `
+                <div class="risk-level-display">
+                    <span class="risk-level ${level.toLowerCase()}">${level}</span>
+                    <span class="risk-score">نقاط المخاطرة: ${score}</span>
+                </div>
+                <p class="risk-description">
+                    ${getRiskDescription(level)}
+                </p>
+            `;
+        }
+        
+        function getRiskDescription(level) {
+            const descriptions = {
+                'CRITICAL': 'تهديد حرج يتطلب اتخاذ إجراء فوري. الهدف له تأثير كبير ويعمل بنشاط.',
+                'HIGH': 'تهديد عالي الخطورة. مراقبة مستمرة مطلوبة مع إمكانية اتخاذ إجراء.',
+                'MEDIUM': 'تهديد متوسط. مراقبة دورية وتقييم مستمر.',
+                'LOW': 'تهديد منخفض. مراقبة عابرة.'
+            };
+            return descriptions[level] || 'مستوى التهديد غير معروف';
+        }
+        
+        // تحديث التفاصيل
+        function updateDetails(analysis) {
+            const detailsEl = document.getElementById('details-content');
+            const device = analysis.device || {};
+            const network = analysis.network || {};
+            
+            detailsEl.innerHTML = `
+                <div class="detail-item">
+                    <span class="detail-label">آخر نشاط:</span>
+                    <span class="detail-value">${new Date().toLocaleTimeString()}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">نظام التشغيل:</span>
+                    <span class="detail-value">${device.os || 'غير معروف'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">المعالج:</span>
+                    <span class="detail-value">${device.cpu || 'غير معروف'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">الثغرات:</span>
+                    <span class="detail-value">${device.vulnerabilities ? device.vulnerabilities.length : 0} ثغرة</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">العقد الشبكية:</span>
+                    <span class="detail-value">${network.nodes || 0} عقدة</span>
+                </div>
+            `;
+        }
+        
+        // تحديث التوصيات
+        function updateRecommendations(analysis) {
+            const recEl = document.getElementById('recommendations-content');
+            const recommendations = analysis.analysis?.recommendations || ['MONITOR_TARGET'];
+            
+            const recMap = {
+                'MONITOR_CONTINUOUSLY': 'مراقبة مستمرة للهدف على مدار 24/7',
+                'TRACK_NEW_NUMBERS': 'تتبع أي أرقام هاتف جديدة مرتبطة بالهدف',
+                'EXPLOIT_VULNERABILITIES': 'استغلال الثغرات الأمنية في جهاز الهدف',
+                'MAP_NETWORK': 'رسم خريطة كاملة للشبكة الاجتماعية',
+                'MONITOR_TARGET': 'مراقبة الهدف بشكل دوري'
+            };
+            
+            let html = '<ul class="recommendations-list">';
+            recommendations.forEach(rec => {
+                html += `<li class="recommendation-item">${recMap[rec] || rec}</li>`;
+            });
+            html += '</ul>';
+            
+            recEl.innerHTML = html;
+        }
+        
+        // تحديث الرسم البياني للشبكة
+        function updateNetworkGraph(network) {
+            const graphEl = document.getElementById('network-graph');
+            const connections = network?.connections || [];
+            
+            if (connections.length === 0) {
+                graphEl.innerHTML = '<div class="empty-network">لا توجد بيانات شبكية</div>';
+                return;
+            }
+            
+            let html = '<div class="network-center">الهدف الرئيسي</div>';
+            connections.forEach((conn, index) => {
+                const angle = (index * 360) / connections.length;
+                html += `
+                    <div class="network-node" style="transform: rotate(${angle}deg) translateX(100px) rotate(-${angle}deg)">
+                        <div class="node-name">${conn.target}</div>
+                        <div class="node-relationship">${conn.relationship}</div>
+                    </div>
+                `;
+            });
+            
+            graphEl.innerHTML = html;
+        }
+        
+        // تحميل هدف
+        function loadTarget(targetId) {
+            document.getElementById('target-input').value = targetId;
+            analyzeTarget();
+        }
+        
+        // تحميل هدف عشوائي
+        function loadRandomTarget() {
+            const targets = ['ALJANOOB368', 'CYBER_CELL_009'];
+            const randomTarget = targets[Math.floor(Math.random() * targets.length)];
+            loadTarget(randomTarget);
+        }
+        
+        // مسح عميق
+        function startDeepScan() {
+            const input = document.getElementById('target-input').value.trim();
+            if (!input) return;
+            
+            const statusEl = document.getElementById('scan-status');
+            statusEl.innerHTML = '<span class="status-dot scanning"></span> جاري المسح العميق...';
+            
+            // عرض رسالة المسح العميق
+            const resultsEl = document.getElementById('results-content');
+            resultsEl.innerHTML = `
+                <div class="scan-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill deep-scan"></div>
+                    </div>
+                    <div class="scan-messages">
+                        <div class="scan-message">بدء المسح العميق...</div>
+                        <div class="scan-message">فحص البصمة الرقمية...</div>
+                        <div class="scan-message">تحليل أنماط السلوك...</div>
+                        <div class="scan-message">رسم الخرائط الشبكية...</div>
+                    </div>
+                </div>
+            `;
+            
+            // محاكاة المسح العميق
+            setTimeout(() => {
+                analyzeTarget();
+            }, 3000);
+        }
+        
+        // تصدير التحليل
+        function exportAnalysis() {
+            alert('تم تصدير التحليل (محاكاة)');
+        }
+    </script>
+</body>
+</html>
