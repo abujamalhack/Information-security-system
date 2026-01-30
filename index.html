@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام أبو جمال للذكاء السيبراني | ABU JAMAL OS</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="assets/css/neon.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+    <link rel="stylesheet" href="assets/css/matrix.css">
+</head>
+<body class="matrix-bg">
+    <!-- تأثير المصفوفة في الخلفية -->
+    <div id="matrix-canvas"></div>
+    
+    <!-- المؤثرات الصوتية -->
+    <audio id="hover-sound" src="assets/sounds/beep.mp3"></audio>
+    
+    <!-- الشريط العلوي -->
+    <header class="system-header">
+        <div class="header-left">
+            <div class="logo glitch" data-text="ABU_JAMAL_OS">ABU_JAMAL_OS</div>
+            <div class="system-status">
+                <span class="status-indicator online"></span>
+                <span class="status-text">SYSTEM: <span class="neon-text">ONLINE</span></span>
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <div class="terminal-clock" id="terminal-clock">00:00:00</div>
+            <div class="security-level">
+                <span class="level-indicator max"></span>
+                SECURITY: <span class="neon-red">MAXIMUM</span>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <div class="user-info">
+                <span class="user-rank">OPERATOR: <span class="neon-cyan">ELITE</span></span>
+                <span class="user-id">ID: AJ-OPERATOR-001</span>
+            </div>
+            <div class="logout-btn" onclick="logout()">[LOGOUT]</div>
+        </div>
+    </header>
+    
+    <!-- لوحة التحكم الرئيسية -->
+    <main class="dashboard">
+        <div class="dashboard-grid">
+            <!-- بطاقات النظام -->
+            <div class="card critical" onclick="navigateTo('target-analysis')">
+                <div class="card-header">
+                    <h3 class="card-title neon-red">تحليل الهدف</h3>
+                    <span class="card-status active">ACTIVE</span>
+                </div>
+                <div class="card-content">
+                    <p>تحليل متقدم للأهداف وتتبع الشبكات</p>
+                    <div class="card-stats">
+                        <span class="stat">أهداف نشطة: <span class="neon-text">14</span></span>
+                        <span class="stat">آخر تحديث: <span class="neon-cyan">الآن</span></span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="access-level">مستوى الوصول: <span class="neon-red">مطلق</span></span>
+                </div>
+            </div>
+            
+            <div class="card" onclick="navigateTo('phone-correlation')">
+                <div class="card-header">
+                    <h3 class="card-title neon-blue">ارتباط الهاتف</h3>
+                    <span class="card-status scanning">SCANNING</span>
+                </div>
+                <div class="card-content">
+                    <p>تتبع وتحليل أرقام الهواتف</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 78%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" onclick="navigateTo('device-intel')">
+                <div class="card-header">
+                    <h3 class="card-title neon-green">ذكاء الجهاز</h3>
+                    <span class="card-status">ANALYZING</span>
+                </div>
+                <div class="card-content">
+                    <p>بصمة الأجهزة والتشخيص</p>
+                </div>
+            </div>
+            
+            <div class="card" onclick="navigateTo('network-map')">
+                <div class="card-header">
+                    <h3 class="card-title neon-purple">الخريطة الشبكية</h3>
+                    <span class="card-status">MAPPING</span>
+                </div>
+                <div class="card-content">
+                    <p>رسم خرائط الشبكات والاتصالات</p>
+                </div>
+            </div>
+            
+            <div class="card wide" onclick="navigateTo('terminal')">
+                <div class="card-header">
+                    <h3 class="card-title neon-yellow">المحطة الطرفية</h3>
+                    <span class="card-status">READY</span>
+                </div>
+                <div class="card-content terminal-preview">
+                    <div class="terminal-line">abu-jamal-os:~$ scan --target ALJANOOB368</div>
+                    <div class="terminal-line">> Target identified: ALJANOOB368 ✔</div>
+                    <div class="terminal-line">> Risk level: HIGH</div>
+                    <div class="terminal-line blinking">> Press ENTER to continue...</div>
+                </div>
+            </div>
+            
+            <div class="card critical" onclick="navigateTo('threat-map')">
+                <div class="card-header">
+                    <h3 class="card-title neon-red">خريطة التهديدات</h3>
+                    <span class="card-status alert">ALERT</span>
+                </div>
+                <div class="card-content">
+                    <div class="threat-level">
+                        <div class="threat-meter">
+                            <div class="threat-fill high"></div>
+                        </div>
+                        <span class="threat-text">مستوى التهديد: <span class="neon-red">عالٍ</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" onclick="navigateTo('logs')">
+                <div class="card-header">
+                    <h3 class="card-title">سجلات النظام</h3>
+                    <span class="card-status">LOGGING</span>
+                </div>
+                <div class="card-content">
+                    <p>مراقبة نشاط النظام</p>
+                    <div class="log-preview">
+                        <div class="log-entry">[22:45:31] System scan initiated</div>
+                        <div class="log-entry">[22:45:33] Target acquired: ALJANOOB368</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" onclick="navigateTo('system-control')">
+                <div class="card-header">
+                    <h3 class="card-title">التحكم بالنظام</h3>
+                    <span class="card-status">CONTROL</span>
+                </div>
+                <div class="card-content">
+                    <p>إدارة النظام والإعدادات</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- شريط الحالة السفلي -->
+        <footer class="system-footer">
+            <div class="footer-grid">
+                <div class="footer-item">
+                    <span class="label">النظام:</span>
+                    <span class="value neon-cyan">ABU JAMAL OS v2.0</span>
+                </div>
+                <div class="footer-item">
+                    <span class="label">الحالة:</span>
+                    <span class="value neon-green">نشط</span>
+                </div>
+                <div class="footer-item">
+                    <span class="label">التهديدات:</span>
+                    <span class="value neon-red">14 نشط</span>
+                </div>
+                <div class="footer-item">
+                    <span class="label">آخر تحديث:</span>
+                    <span class="value">٠٥:٣٠:٢٢ UTC</span>
+                </div>
+                <div class="footer-item">
+                    <span class="label">مشغّل بواسطة:</span>
+                    <span class="value neon-yellow">Abu Jamal Abdulnasser</span>
+                </div>
+            </div>
+        </footer>
+    </main>
+    
+    <!-- التنبيهات -->
+    <div class="alert-container" id="alert-container"></div>
+    
+    <script src="assets/js/core.js"></script>
+    <script src="assets/js/router.js"></script>
+    <script src="assets/js/effects.js"></script>
+    <script src="assets/js/matrix.js"></script>
+    <script>
+        // تهيئة النظام
+        document.addEventListener('DOMContentLoaded', function() {
+            initSystem();
+            startMatrixEffect();
+            updateClock();
+            setInterval(updateClock, 1000);
+        });
+        
+        function navigateTo(page) {
+            window.location.href = `pages/${page}.html`;
+        }
+        
+        function logout() {
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

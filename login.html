@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدخول | نظام أبو جمال للذكاء السيبراني</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+    <link rel="stylesheet" href="assets/css/matrix.css">
+</head>
+<body class="login-bg">
+    <!-- تأثير المصفوفة في الخلفية -->
+    <canvas id="login-matrix"></canvas>
+    
+    <!-- شاشة الدخول -->
+    <div class="login-container">
+        <!-- شعار النظام -->
+        <div class="login-header">
+            <div class="system-logo glitch" data-text="ABU_JAMAL_OS">ABU_JAMAL_OS</div>
+            <div class="system-version">الإصدار 2.0 | مستوى الأمان: قصوى</div>
+        </div>
+        
+        <!-- بطاقة الدخول -->
+        <div class="login-card">
+            <div class="card-header">
+                <h2 class="neon-cyan">المصادقة المطلوبة</h2>
+                <div class="security-level">
+                    <span class="level-dot max"></span>
+                    <span>نظام مصنف</span>
+                </div>
+            </div>
+            
+            <div class="card-content">
+                <div class="login-message">
+                    <p>الوصول مقصور على المشغلين المخولين فقط</p>
+                    <p class="warning-text">جميع المحاولات غير المصرح بها يتم تسجيلها</p>
+                </div>
+                
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="operator-id">معرّف المشغل:</label>
+                        <input 
+                            type="text" 
+                            id="operator-id" 
+                            placeholder="AJ-OPERATOR-XXX"
+                            required
+                            class="login-input"
+                        >
+                        <div class="input-hint">مثال: AJ-OPERATOR-001</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="access-code">كود الوصول:</label>
+                        <input 
+                            type="password" 
+                            id="access-code" 
+                            placeholder="••••••••••"
+                            required
+                            class="login-input"
+                        >
+                        <div class="input-hint">12 رمزاً على الأقل</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="biometric">المصادقة الحيوية:</label>
+                        <select id="biometric" class="login-select">
+                            <option value="">اختر طريقة المصادقة</option>
+                            <option value="retina">مسح الشبكية</option>
+                            <option value="voice">البصمة الصوتية</option>
+                            <option value="behavior">تحليل السلوك</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="login-btn">
+                            <span class="btn-icon">🔐</span>
+                            الدخول إلى النظام
+                        </button>
+                        
+                        <button type="button" class="emergency-btn" onclick="emergencyAccess()">
+                            <span class="btn-icon">⚠️</span>
+                            دخول طارئ
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="login-footer">
+                    <div class="system-status">
+                        <span class="status-indicator"></span>
+                        النظام: <span class="neon-green">جاهز</span>
+                    </div>
+                    <div class="last-access">
+                        آخر دخول: <span id="last-access-time">--:--:--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- معلومات النظام -->
+        <div class="system-info">
+            <div class="info-item">
+                <span class="info-label">النظام:</span>
+                <span class="info-value">Abu Jamal Cyber Intelligence OS</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">المطور:</span>
+                <span class="info-value">Abu Jamal Abdulnasser</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">الحالة:</span>
+                <span class="info-value neon-green">مشفر بالكامل</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- التنبيهات -->
+    <div class="alert-overlay" id="alert-overlay" style="display: none;">
+        <div class="alert-modal">
+            <div class="alert-header neon-red">
+                <h3>⚠️ تنبيه أمني</h3>
+            </div>
+            <div class="alert-content">
+                <p>تم اكتشاف محاولة وصول غير مصرح بها</p>
+                <p>جميع البيانات قد تم تسجيلها</p>
+            </div>
+            <div class="alert-actions">
+                <button onclick="closeAlert()" class="alert-btn">فهمت</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="assets/js/matrix.js"></script>
+    <script>
+        // تهيئة تأثير المصفوفة
+        document.addEventListener('DOMContentLoaded', function() {
+            // تحديث وقت آخر دخول
+            const lastLogin = localStorage.getItem('lastLogin');
+            if (lastLogin) {
+                document.getElementById('last-access-time').textContent = 
+                    new Date(lastLogin).toLocaleTimeString();
+            }
+            
+            // تهيئة تأثير المصفوفة
+            const canvas = document.getElementById('login-matrix');
+            if (canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                startMatrixEffect();
+            }
+        });
+        
+        // معالجة الدخول
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const operatorId = document.getElementById('operator-id').value;
+            const accessCode = document.getElementById('access-code').value;
+            const biometric = document.getElementById('biometric').value;
+            
+            // محاكاة المصادقة
+            if (authenticate(operatorId, accessCode, biometric)) {
+                // حفظ وقت الدخول
+                localStorage.setItem('lastLogin', new Date().toISOString());
+                localStorage.setItem('operatorId', operatorId);
+                
+                // عرض تحميل
+                showLoading();
+                
+                // الانتقال إلى لوحة التحكم
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            } else {
+                // عرض تنبيه أمني
+                showSecurityAlert();
+            }
+        });
+        
+        // وظيفة المصادقة
+        function authenticate(id, code, biometric) {
+            // محاكاة المصادقة
+            const validOperators = ['AJ-OPERATOR-001', 'AJ-ANALYST-002', 'AJ-MONITOR-003'];
+            
+            // التحقق من معرّف المشغل
+            if (!validOperators.includes(id)) {
+                return false;
+            }
+            
+            // التحقق من كود الوصول (محاكاة)
+            if (code.length < 12) {
+                return false;
+            }
+            
+            // التحقق من المصادقة الحيوية
+            if (!biometric) {
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // عرض شاشة التحميل
+        function showLoading() {
+            const form = document.getElementById('login-form');
+            form.innerHTML = `
+                <div class="loading-screen">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">
+                        <p>جاري المصادقة...</p>
+                        <p class="loading-details">تحقق من البصمة الحيوية</p>
+                    </div>
+                    <div class="loading-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // محاكاة التقدم
+            const fill = document.querySelector('.progress-fill');
+            let width = 0;
+            const interval = setInterval(() => {
+                width += 10;
+                fill.style.width = width + '%';
+                if (width >= 100) clearInterval(interval);
+            }, 200);
+        }
+        
+        // عرض تنبيه أمني
+        function showSecurityAlert() {
+            document.getElementById('alert-overlay').style.display = 'flex';
+            
+            // تسجيل المحاولة
+            console.warn('محاولة دخول غير ناجحة:', {
+                time: new Date().toISOString(),
+                operatorId: document.getElementById('operator-id').value
+            });
+        }
+        
+        // إغلاق التنبيه
+        function closeAlert() {
+            document.getElementById('alert-overlay').style.display = 'none';
+            
+            // إعادة تعيين النموذج
+            document.getElementById('operator-id').value = '';
+            document.getElementById('access-code').value = '';
+            document.getElementById('biometric').selectedIndex = 0;
+        }
+        
+        // الدخول الطارئ
+        function emergencyAccess() {
+            if (confirm('الدخول الطارئ سيتم تسجيله وقد يتسبب في إيقاف تشغيل النظام. هل تريد المتابعة؟')) {
+                document.getElementById('operator-id').value = 'AJ-EMERGENCY-001';
+                document.getElementById('access-code').value = 'EMERGENCY_OVERRIDE_2024';
+                document.getElementById('biometric').value = 'retina';
+                
+                // إرسال النموذج تلقائياً
+                document.getElementById('login-form').dispatchEvent(new Event('submit'));
+            }
+        }
+        
+        // تأثير المصفوفة المعدل للدخول
+        function startMatrixEffect() {
+            const canvas = document.getElementById('login-matrix');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const symbols = "01اأإآبةتثجحخدذرزسشصضطظعغفقكلمنهوي٠١٢٣٤٥٦٧٨٩ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const fontSize = 18;
+            const columns = canvas.width / fontSize;
+            const drops = Array(Math.floor(columns)).fill(1);
+            
+            function draw() {
+                ctx.fillStyle = 'rgba(10, 10, 15, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#0f0';
+                ctx.font = `${fontSize}px 'JetBrains Mono'`;
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = symbols[Math.floor(Math.random() * symbols.length)];
+                    const x = i * fontSize;
+                    const y = drops[i] * fontSize;
+                    
+                    ctx.fillText(text, x, y);
+                    
+                    if (y > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    
+                    drops[i]++;
+                }
+            }
+            
+            setInterval(draw, 50);
+            
+            // تحديث الحجم عند تغيير حجم النافذة
+            window.addEventListener('resize', function() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+    </script>
+    
+    <style>
+        /* أنماط خاصة بصفحة الدخول */
+        .login-bg {
+            background: linear-gradient(135deg, #0a0a0f 0%, #11111f 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        #login-matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .system-logo {
+            font-size: 2.5rem;
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 0.5rem;
+        }
+        
+        .system-version {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+        
+        .login-card {
+            background: linear-gradient(145deg, rgba(26, 26, 46, 0.9), rgba(17, 17, 31, 0.9));
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1.5rem;
+            background: linear-gradient(90deg, rgba(0, 255, 157, 0.1), rgba(0, 204, 255, 0.1));
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .security-level {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .level-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .level-dot.max {
+            background-color: var(--neon-red);
+            box-shadow: 0 0 8px var(--neon-red);
+            animation: alert-pulse 1s infinite;
+        }
+        
+        .card-content {
+            padding: 2rem;
+        }
+        
+        .login-message {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .warning-text {
+            color: var(--neon-red);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            color: var(--neon-cyan);
+            font-weight: bold;
+        }
+        
+        .login-input, .login-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 0.75rem 1rem;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s;
+        }
+        
+        .login-input:focus, .login-select:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 204, 255, 0.3);
+        }
+        
+        .input-hint {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 0.25rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .login-btn, .emergency-btn {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .login-btn {
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+            color: #000;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 204, 255, 0.4);
+        }
+        
+        .emergency-btn {
+            background: transparent;
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+        }
+        
+        .emergency-btn:hover {
+            background: rgba(255, 0, 64, 0.1);
+            box-shadow: 0 0 15px rgba(255, 0, 64, 0.3);
+        }
+        
+        .login-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .system-info {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .loading-screen {
+            text-align: center;
+            padding: 2rem 0;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--neon-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        .loading-text {
+            margin-bottom: 1rem;
+        }
+        
+        .loading-details {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.5rem;
+        }
+        
+        .loading-progress {
+            width: 100%;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .alert-modal {
+            background: linear-gradient(145deg, var(--secondary-bg), var(--tertiary-bg));
+            border: 1px solid var(--neon-red);
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            overflow: hidden;
+        }
+        
+        .alert-header {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid var(--neon-red);
+        }
+        
+        .alert-content {
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .alert-actions {
+            padding: 1rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .alert-btn {
+            background: var(--neon-red);
+            color: white;
+            border: none;
+            padding: 0.5rem 2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>
